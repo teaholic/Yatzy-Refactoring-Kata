@@ -1,4 +1,19 @@
+from dataclasses import dataclass
+from typing import List
+
+@dataclass(frozen=True)
+class Dice:
+    values: List[int]
+
 class Yatzy:
+
+    def __init__(self, d1=0, d2=0, d3=0, d4=0, _5=0):
+        self.dice = [0] * 5
+        self.dice[0] = d1
+        self.dice[1] = d2
+        self.dice[2] = d3
+        self.dice[3] = d4
+        self.dice[4] = _5
 
     @staticmethod
     def chance(d1, d2, d3, d4, d5):
@@ -11,7 +26,7 @@ class Yatzy:
         return total
 
     @staticmethod
-    def yatzy(dice):
+    def yatzy(dice: List[int]):
         counts = [0] * (len(dice) + 1)
         for die in dice:
             counts[die - 1] += 1
@@ -66,14 +81,6 @@ class Yatzy:
             s += 3
         return s
 
-    def __init__(self, d1=0, d2=0, d3=0, d4=0, _5=0):
-        self.dice = [0] * 5
-        self.dice[0] = d1
-        self.dice[1] = d2
-        self.dice[2] = d3
-        self.dice[3] = d4
-        self.dice[4] = _5
-
     def fours(self):
         sum = 0
         for at in range(5):
@@ -83,7 +90,6 @@ class Yatzy:
 
     def fives(self):
         s = 0
-        i = 0
         for i in range(len(self.dice)):
             if (self.dice[i] == 5):
                 s = s + 5
@@ -96,7 +102,8 @@ class Yatzy:
                 sum = sum + 6
         return sum
 
-    def score_pair(self, d1, d2, d3, d4, d5):
+    @staticmethod
+    def score_pair(d1, d2, d3, d4, d5):
         counts = [0] * 6
         counts[d1 - 1] += 1
         counts[d2 - 1] += 1

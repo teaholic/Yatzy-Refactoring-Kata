@@ -15,14 +15,9 @@ class Yatzy:
     def chance(self) -> int:
         return sum(self.dice.values)
 
-    @staticmethod
-    def yatzy(dice: List[int]):
-        counts = [0] * (len(dice) + 1)
-        for die in dice:
-            counts[die - 1] += 1
-        for i in range(len(counts)):
-            if counts[i] == 5:
-                return 50
+    def yatzy(self) -> int:
+        if len(set(self.dice.values)) == 1:
+            return 50
         return 0
 
     @staticmethod

@@ -9,18 +9,11 @@ class Dice:
 
 class Yatzy:
 
-    def __init__(self, d1=0, d2=0, d3=0, d4=0, d5=0):
+    def __init__(self, d1:int=0, d2:int=0, d3:int=0, d4:int=0, d5:int=0):
         self.dice = Dice(values=[d1,d2,d3,d4,d5])
 
-    @staticmethod
-    def chance(d1, d2, d3, d4, d5):
-        total = 0
-        total += d1
-        total += d2
-        total += d3
-        total += d4
-        total += d5
-        return total
+    def chance(self) -> int:
+        return sum(self.dice.values)
 
     @staticmethod
     def yatzy(dice: List[int]):

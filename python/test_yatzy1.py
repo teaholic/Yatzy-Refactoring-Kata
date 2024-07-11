@@ -52,15 +52,15 @@ def test_sixes():
 
 
 def test_one_pair():
-    assert 6 == Yatzy(3, 4, 3, 5, 6).score_pair()
-    assert 10 == Yatzy(5, 3, 3, 3, 5).score_pair()
-    assert 12 == Yatzy(5, 3, 6, 6, 5).score_pair()
+    assert 6 == Yatzy(3, 4, 3, 5, 6).one_pair()
+    assert 10 == Yatzy(5, 3, 3, 3, 5).one_pair()
+    assert 12 == Yatzy(5, 3, 6, 6, 5).one_pair()
 
 
-def test_two_Pair():
-    assert 16 == Yatzy().two_pair(3, 3, 5, 4, 5)
-    assert 18 == Yatzy().two_pair(3, 3, 6, 6, 6)
-    assert 0 == Yatzy().two_pair(3, 3, 6, 5, 4)
+def test_two_pairs():
+    assert 16 == Yatzy(3, 3, 5, 4, 5).two_pairs()
+    assert 18 == Yatzy(3, 3, 6, 6, 6).two_pairs()
+    assert 0 == Yatzy(3, 3, 6, 5, 4).two_pairs()
 
 
 def test_three_of_a_kind():

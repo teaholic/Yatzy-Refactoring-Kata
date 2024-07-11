@@ -41,32 +41,25 @@ class Yatzy:
     def _score_matching(self, number) -> int:
         return sum([v for v in self.dice.values if v == number])
 
-
-    def score_pair(self):
-        dice_times = 2
+    def one_pair(self):
+        same_number_times = 2
+        frequency = 1
         counts = [[n,self.dice.values.count(n)] for n in set(self.dice.values)]
-        match = max([n for n, times in counts if times >= dice_times])
-        return sum([n for n in self.dice.values if n == match])
+        candidates = [n for n, times in counts if times >= same_number_times]
+        match = sorted(candidates, reverse=True)[:frequency]
+        if len(match) >= frequency:
+            return sum([n * same_number_times for n in match])
+        return 0
 
-    @staticmethod
-    def two_pair(d1, d2, d3, d4, d5):
-        counts = [0] * 6
-        counts[d1 - 1] += 1
-        counts[d2 - 1] += 1
-        counts[d3 - 1] += 1
-        counts[d4 - 1] += 1
-        counts[d5 - 1] += 1
-        n = 0
-        score = 0
-        for i in range(6):
-            if (counts[6 - i - 1] >= 2):
-                n = n + 1
-                score += (6 - i)
-
-        if (n == 2):
-            return score * 2
-        else:
-            return 0
+    def two_pairs(self):
+        same_number_times = 2
+        frequency = 2
+        counts = [[n, self.dice.values.count(n)] for n in set(self.dice.values)]
+        candidates = [n for n, times in counts if times >= same_number_times]
+        match = sorted(candidates, reverse=True)[:frequency]
+        if len(match) >= frequency:
+            return sum([n * same_number_times for n in match])
+        return 0
 
     @staticmethod
     def four_of_a_kind(_1, _2, d3, d4, d5):

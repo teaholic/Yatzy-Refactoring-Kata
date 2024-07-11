@@ -64,19 +64,17 @@ class Yatzy:
     def smallStraight(self):
         small_straight = [1,2,3,4,5]
         score = 15
-        matches = set([i for i, j in zip(small_straight, sorted(self.dice.values)) if i == j])
-        print(matches)
-        if len(matches) != len(small_straight):
-            return 0
-        else:
-            return score
+        return self._score_straight(straight=small_straight, score=score)
 
     def largeStraight(self):
         large_straight = [2,3,4,5,6]
         score = 20
-        matches = set([i for i, j in zip(large_straight, sorted(self.dice.values)) if i == j])
+        return self._score_straight(straight=large_straight, score=score)
+
+    def _score_straight(self, straight: List[int], score: int) -> int:
+        matches = set([i for i, j in zip(straight, sorted(self.dice.values)) if i == j])
         print(matches)
-        if len(matches) != len(large_straight):
+        if len(matches) != len(straight):
             return 0
         else:
             return score

@@ -26,27 +26,11 @@ class Yatzy:
     def twos(self):
         return sum([v for v in self.dice.values if v == 2])
 
-    @staticmethod
-    def threes(d1, d2, d3, d4, d5):
-        s = 0
-        if (d1 == 3):
-            s += 3
-        if (d2 == 3):
-            s += 3
-        if (d3 == 3):
-            s += 3
-        if (d4 == 3):
-            s += 3
-        if (d5 == 3):
-            s += 3
-        return s
+    def threes(self):
+        return sum([v for v in self.dice.values if v == 3])
 
     def fours(self):
-        sum = 0
-        for at in range(5):
-            if self.dice.values[at] == 4:
-                sum += 4
-        return sum
+        return sum([v for v in self.dice.values if v == 4])
 
     def fives(self):
         s = 0

@@ -21,44 +21,32 @@ class Yatzy:
         return 0
 
     def ones(self):
-        return sum([v for v in self.dice.values if v == 1])
+        return self._score_matching(1)
 
     def twos(self):
-        return sum([v for v in self.dice.values if v == 2])
+        return self._score_matching(2)
 
     def threes(self):
-        return sum([v for v in self.dice.values if v == 3])
+        return self._score_matching(3)
 
     def fours(self):
-        return sum([v for v in self.dice.values if v == 4])
+        return self._score_matching(4)
 
     def fives(self):
-        s = 0
-        for i in range(len(self.dice.values)):
-            if (self.dice.values[i] == 5):
-                s = s + 5
-        return s
+        return self._score_matching(5)
 
     def sixes(self):
-        sum = 0
-        for at in range(len(self.dice.values)):
-            if (self.dice.values[at] == 6):
-                sum = sum + 6
-        return sum
+        return self._score_matching(6)
 
-    @staticmethod
-    def score_pair(d1, d2, d3, d4, d5):
-        counts = [0] * 6
-        counts[d1 - 1] += 1
-        counts[d2 - 1] += 1
-        counts[d3 - 1] += 1
-        counts[d4 - 1] += 1
-        counts[d5 - 1] += 1
-        at = 0
-        for at in range(6):
-            if (counts[6 - at - 1] == 2):
-                return (6 - at) * 2
-        return 0
+    def _score_matching(self, number) -> int:
+        return sum([v for v in self.dice.values if v == number])
+
+
+    def score_pair(self):
+        dice_times = 2
+        counts = [[n,self.dice.values.count(n)] for n in set(self.dice.values)]
+        match = max([n for n, times in counts if times >= dice_times])
+        return sum([n for n in self.dice.values if n == match])
 
     @staticmethod
     def two_pair(d1, d2, d3, d4, d5):

@@ -52,9 +52,9 @@ def test_sixes():
 
 
 def test_one_pair():
-    assert 6 == Yatzy().score_pair(3, 4, 3, 5, 6)
-    assert 10 == Yatzy().score_pair(5, 3, 3, 3, 5)
-    assert 12 == Yatzy().score_pair(5, 3, 6, 6, 5)
+    assert 6 == Yatzy(3, 4, 3, 5, 6).score_pair()
+    assert 10 == Yatzy(5, 3, 3, 3, 5).score_pair()
+    assert 12 == Yatzy(5, 3, 6, 6, 5).score_pair()
 
 
 def test_two_Pair():

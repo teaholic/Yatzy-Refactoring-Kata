@@ -42,46 +42,23 @@ class Yatzy:
         return sum([v for v in self.dice.values if v == number])
 
     def one_pair(self):
-        same_number_times = 2
-        frequency = 1
-        counts = [[n,self.dice.values.count(n)] for n in set(self.dice.values)]
-        candidates = [n for n, times in counts if times >= same_number_times]
-        match = sorted(candidates, reverse=True)[:frequency]
-        if len(match) >= frequency:
-            return sum([n * same_number_times for n in match])
-        return 0
+        return self._score_multiple_combinations(same_number_times = 2, frequency = 1)
 
     def two_pairs(self):
-        same_number_times = 2
-        frequency = 2
-        counts = [[n, self.dice.values.count(n)] for n in set(self.dice.values)]
-        candidates = [n for n, times in counts if times >= same_number_times]
-        match = sorted(candidates, reverse=True)[:frequency]
-        if len(match) >= frequency:
-            return sum([n * same_number_times for n in match])
-        return 0
+        return self._score_multiple_combinations(same_number_times=2, frequency=2)
+
+    def three_of_a_kind(self):
+        return self._score_multiple_combinations(same_number_times=3, frequency=1)
 
     def four_of_a_kind(self):
-        same_number_times = 4
-        frequency = 1
+        return self._score_multiple_combinations(same_number_times = 4, frequency = 1)
+
+    def _score_multiple_combinations(self, same_number_times:int, frequency:int):
         counts = [[n, self.dice.values.count(n)] for n in set(self.dice.values)]
         candidates = [n for n, times in counts if times >= same_number_times]
         match = sorted(candidates, reverse=True)[:frequency]
         if len(match) >= frequency:
             return sum([n * same_number_times for n in match])
-        return 0
-
-    @staticmethod
-    def three_of_a_kind(d1, d2, d3, d4, d5):
-        t = [0] * 6
-        t[d1 - 1] += 1
-        t[d2 - 1] += 1
-        t[d3 - 1] += 1
-        t[d4 - 1] += 1
-        t[d5 - 1] += 1
-        for i in range(6):
-            if (t[i] >= 3):
-                return (i + 1) * 3
         return 0
 
     @staticmethod

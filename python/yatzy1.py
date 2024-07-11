@@ -62,29 +62,24 @@ class Yatzy:
         return 0
 
     def smallStraight(self):
-        straight = [1,2,3,4,5]
-        matches = set([i for i, j in zip(straight, sorted(self.dice.values)) if i == j])
+        small_straight = [1,2,3,4,5]
+        score = 15
+        matches = set([i for i, j in zip(small_straight, sorted(self.dice.values)) if i == j])
         print(matches)
-        if len(matches) != len(straight):
+        if len(matches) != len(small_straight):
             return 0
         else:
-            return 15
+            return score
 
-    @staticmethod
-    def largeStraight(d1, d2, d3, d4, d5):
-        tallies = [0] * 6
-        tallies[d1 - 1] += 1
-        tallies[d2 - 1] += 1
-        tallies[d3 - 1] += 1
-        tallies[d4 - 1] += 1
-        tallies[d5 - 1] += 1
-        if (tallies[1] == 1 and
-                tallies[2] == 1 and
-                tallies[3] == 1 and
-                tallies[4] == 1
-                and tallies[5] == 1):
-            return 20
-        return 0
+    def largeStraight(self):
+        large_straight = [2,3,4,5,6]
+        score = 20
+        matches = set([i for i, j in zip(large_straight, sorted(self.dice.values)) if i == j])
+        print(matches)
+        if len(matches) != len(large_straight):
+            return 0
+        else:
+            return score
 
     @staticmethod
     def fullHouse(d1, d2, d3, d4, d5):

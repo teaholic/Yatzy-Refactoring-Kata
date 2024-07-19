@@ -23,8 +23,14 @@ class Straight:
 class RuleBook:
     def __init__(self, dice:Dice):
         self.dice = dice
-        self.small_straight = Straight(values=[1,2,3,4,5], win_score=15)
-        self.large_straight = Straight(values=[2,3,4,5,6], win_score=20)
+
+    @staticmethod
+    def small_straight() -> Straight:
+        return Straight(values=[1,2,3,4,5], win_score=15)
+
+    @staticmethod
+    def large_straight() -> Straight:
+        return Straight(values=[2,3,4,5,6], win_score=20)
 
     def score_matching(self, number) -> int:
         return sum([v for v in self.dice.values if v == number])
@@ -38,7 +44,7 @@ class RuleBook:
         return 0
 
     def score_straight(self, straight_type: StraightType) -> int:
-        straight = self.small_straight if straight_type is StraightType.SMALL else self.large_straight
+        straight = self.small_straight() if straight_type is StraightType.SMALL else self.large_straight()
         matches = set([i for i, j in zip(straight.values, sorted(self.dice.values)) if i == j])
         print(matches)
         if len(matches) == len(straight.values):

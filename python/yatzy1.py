@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import List
+from typing import List, Optional, Union, Any
 
 
 @dataclass(frozen=True)
@@ -12,11 +12,23 @@ class StraightType(IntEnum):
     SMALL = 0
     LARGE = 1
 
+@dataclass(frozen=True)
+class HowManyOfAKind:
+    same_number_times: int
+    frequency: int
+
 
 @dataclass(frozen=True)
-class Straight:
-    values: List[int]
-    win_score: int
+class StraightCategory:
+    values: Optional[List[int]] = None
+    win_score: Optional[int]=None
+    loose_score: int = 0
+
+
+@dataclass(frozen=True)
+class RepetitionCategory:
+    how_many_of_a_kind: Optional[List[HowManyOfAKind]] = None
+    win_function: Optional[Union[int, Any]]=None
     loose_score: int = 0
 
 
@@ -25,12 +37,29 @@ class RuleBook:
         self.dice = dice
 
     @staticmethod
-    def small_straight() -> Straight:
-        return Straight(values=[1,2,3,4,5], win_score=15)
+    def small_straight() -> StraightCategory:
+        return StraightCategory(values=[1, 2, 3, 4, 5], win_score=15)
 
     @staticmethod
-    def large_straight() -> Straight:
-        return Straight(values=[2,3,4,5,6], win_score=20)
+    def large_straight() -> StraightCategory:
+        return StraightCategory(values=[2, 3, 4, 5, 6], win_score=20)
+
+    @staticmethod
+    def two_of_a_kind() -> RepetitionCategory:
+        return RepetitionCategory(
+            how_many_of_a_kind=[HowManyOfAKind(same_number_times=2, frequency=1)],
+            win_function=lambda repeated_number: repeated_number*2
+        )
+
+    @staticmethod
+    def full_house() -> RepetitionCategory:
+        return RepetitionCategory(
+            how_many_of_a_kind=[
+                HowManyOfAKind(same_number_times=2, frequency=1),
+                HowManyOfAKind(same_number_times=3, frequency=1)
+            ],
+            win_function=lambda partial_scores: sum(partial_scores)
+        )
 
     def score_matching(self, number) -> int:
         return sum([v for v in self.dice.values if v == number])
@@ -51,6 +80,13 @@ class RuleBook:
             return straight.win_score
         else:
             return straight.loose_score
+
+    def score_full_house(self):
+        if len(set(self.dice.values)) == len(self.full_house().how_many_of_a_kind):
+            partial_scores = [self.score_multiple_combinations(same_number_times=k.same_number_times, frequency=k.frequency) for k in self.full_house().how_many_of_a_kind]
+            if all(partial_scores):
+                return self.full_house().win_function(partial_scores)
+        return self.full_house().loose_score
 
 
 class Yatzy:
@@ -104,9 +140,4 @@ class Yatzy:
         return self.rule_book.score_straight(straight_type=StraightType.LARGE)
 
     def fullHouse(self):
-        if len(set(self.dice.values)) == 2:
-            two_of_a_kind_score = self.rule_book.score_multiple_combinations(same_number_times = 2, frequency = 1)
-            three_of_a_kind_score = self.rule_book.score_multiple_combinations(same_number_times = 3, frequency = 1)
-            if (two_of_a_kind_score != 0) & (three_of_a_kind_score != 0):
-                return two_of_a_kind_score + three_of_a_kind_score
-        return 0
+        return self.rule_book.score_full_house()

@@ -103,33 +103,10 @@ class Yatzy:
     def largeStraight(self):
         return self.rule_book.score_straight(straight_type=StraightType.LARGE)
 
-    @staticmethod
-    def fullHouse(d1, d2, d3, d4, d5):
-        tallies = []
-        _2 = False
-        i = 0
-        _2_at = 0
-        _3 = False
-        _3_at = 0
-
-        tallies = [0] * 6
-        tallies[d1 - 1] += 1
-        tallies[d2 - 1] += 1
-        tallies[d3 - 1] += 1
-        tallies[d4 - 1] += 1
-        tallies[d5 - 1] += 1
-
-        for i in range(6):
-            if (tallies[i] == 2):
-                _2 = True
-                _2_at = i + 1
-
-        for i in range(6):
-            if (tallies[i] == 3):
-                _3 = True
-                _3_at = i + 1
-
-        if (_2 and _3):
-            return _2_at * 2 + _3_at * 3
-        else:
-            return 0
+    def fullHouse(self):
+        if len(set(self.dice.values)) == 2:
+            two_of_a_kind_score = self.rule_book.score_multiple_combinations(same_number_times = 2, frequency = 1)
+            three_of_a_kind_score = self.rule_book.score_multiple_combinations(same_number_times = 3, frequency = 1)
+            if (two_of_a_kind_score != 0) & (three_of_a_kind_score != 0):
+                return two_of_a_kind_score + three_of_a_kind_score
+        return 0

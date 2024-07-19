@@ -80,13 +80,11 @@ def test_smallStraight():
     assert 15 == Yatzy(2, 3, 4, 5, 1).smallStraight()
     assert 0 == Yatzy(1, 2, 2, 4, 5).smallStraight()
 
-
 def test_largeStraight():
     assert 20 == Yatzy(6, 2, 3, 4, 5).largeStraight()
     assert 20 == Yatzy(2, 3, 4, 5, 6).largeStraight()
     assert 0 == Yatzy(1, 2, 2, 4, 5).largeStraight()
 
-
 def test_fullHouse():
-    assert 18 == Yatzy.fullHouse(6, 2, 2, 2, 6)
-    assert 0 == Yatzy.fullHouse(2, 3, 4, 5, 6)
+    assert 18 == Yatzy(6, 2, 2, 2, 6).fullHouse()
+    assert 0 == Yatzy(2, 3, 4, 5, 6).fullHouse()

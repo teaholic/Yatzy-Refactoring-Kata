@@ -51,7 +51,7 @@ class RepetitionCategory:
         match = self._match(dice)
         if self._is_a_win(match):
             return self._assign_win_score(match)
-        return self._assign_loose_score()
+        return self.repetition.loose_score
 
     def _match(self, dice:Dice) -> List[int]:
         counts = [[n, dice.values.count(n)] for n in set(dice.values)]
@@ -64,17 +64,14 @@ class RepetitionCategory:
     def _assign_win_score(self, match: List[int]) -> int:
         return sum([n * self.repetition.same_number_times for n in match])
 
-    def _assign_loose_score(self) -> int:
-        return self.repetition.loose_score
-
 
 class FullHouse:
-    def __init__(self, loose_score: int=0):
+    def __init__(self):
         self.repetitions = [
                 Repetition(same_number_times=2, frequency=1),
                 Repetition(same_number_times=3, frequency=1)
             ]
-        self.loose_score = loose_score
+        self.loose_score = 0
 
     def score(self, dice:Dice) -> int:
         match = self._match(dice)

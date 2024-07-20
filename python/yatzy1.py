@@ -1,3 +1,4 @@
+from abc import ABC
 from dataclasses import dataclass
 from enum import IntEnum
 from typing import List
@@ -16,139 +17,134 @@ class StraightType(IntEnum):
     LARGE = 1
 
 
-@dataclass(frozen=True)
 class StraightCategory:
-    values: List[int]
-    win_score: int
-    loose_score: int = 0
+    def __init__(self, straight_type: StraightType):
+        self.values = [1, 2, 3, 4, 5] if straight_type is StraightType.SMALL else [2, 3, 4, 5, 6]
+        self.win_score = 15 if straight_type is StraightType.SMALL else 20
+        self.loose_score = 0
 
+    def score(self, dice:Dice) -> int:
+        match = self._match(dice)
+        if self._is_a_win(match):
+            return self.win_score
+        return self.loose_score
 
-class StraightFactory:
-    @staticmethod
-    def create(straight_type: StraightType) -> StraightCategory:
-        if straight_type is StraightType.SMALL:
-            return StraightCategory(values=[1, 2, 3, 4, 5], win_score=15)
-        return StraightCategory(values=[2, 3, 4, 5, 6], win_score=20)
+    def _match(self, dice:Dice) -> List[int]:
+        return list(set([i for i, j in zip(self.values, sorted(dice.values)) if i == j]))
+
+    def _is_a_win(self, match:List[int]) -> bool:
+        return len(match) == len(self.values)
 
 
 @dataclass(frozen=True)
-class RepetitionCategory:
+class Repetition:
     same_number_times: int
     frequency: int
     loose_score: int = 0
 
-    def _win_function(self, repeated_number:int) -> int:
-        return repeated_number * self.same_number_times
+
+class RepetitionCategory:
+    def __init__(self, repetition: Repetition):
+        self.repetition = repetition
+
+    def score(self, dice:Dice) -> int:
+        match = self._match(dice)
+        if self._is_a_win(match):
+            return self._assign_win_score(match)
+        return self._assign_loose_score()
+
+    def _match(self, dice:Dice) -> List[int]:
+        counts = [[n, dice.values.count(n)] for n in set(dice.values)]
+        candidates = [n for n, times in counts if times >= self.repetition.same_number_times]
+        return sorted(candidates, reverse=True)[:self.repetition.frequency]
+
+    def _is_a_win(self, match:List[int]) -> bool:
+        return len(match) >= self.repetition.frequency
+
+    def _assign_win_score(self, match: List[int]) -> int:
+        return sum([n * self.repetition.same_number_times for n in match])
+
+    def _assign_loose_score(self) -> int:
+        return self.repetition.loose_score
 
 
-@dataclass(frozen=True)
-class FullHouseCategory:
-    categories: List[RepetitionCategory]
-    loose_score: int
+class FullHouse:
+    def __init__(self, loose_score: int=0):
+        self.repetitions = [
+                Repetition(same_number_times=2, frequency=1),
+                Repetition(same_number_times=3, frequency=1)
+            ]
+        self.loose_score = loose_score
 
+    def score(self, dice:Dice) -> int:
+        match = self._match(dice)
+        if all(match):
+            return sum(match)
+        return self.loose_score
 
-class FullHouseCategoryFactory:
-    @staticmethod
-    def create() -> FullHouseCategory:
-        return FullHouseCategory(
-            categories=[
-                RepetitionCategory(same_number_times=2, frequency=1),
-                RepetitionCategory(same_number_times=3, frequency=1)
-            ],
-            loose_score=0
-        )
-
-
-class RuleBook:
-    def __init__(self, dice:Dice):
-        self.dice = dice
-        self.straight_factory = StraightFactory()
-
-    def score_chance(self) -> int:
-        return sum(self.dice.values)
-
-    def score_yatzy(self) -> int:
-        if len(set(self.dice.values)) == 1:
-            return 50
-        return 0
-
-    def score_matching(self, number) -> int:
-        return sum([v for v in self.dice.values if v == number])
-
-    def score_repetition(self, category:RepetitionCategory):
-        counts = [[n, self.dice.values.count(n)] for n in set(self.dice.values)]
-        candidates = [n for n, times in counts if times >= category.same_number_times]
-        match = sorted(candidates, reverse=True)[:category.frequency]
-        if len(match) >= category.frequency:
-            return sum([n * category.same_number_times for n in match])
-        return 0
-
-    def score_straight(self, straight_type: StraightType) -> int:
-        straight = self.straight_factory.create(straight_type=straight_type)
-        matches = set([i for i, j in zip(straight.values, sorted(self.dice.values)) if i == j])
-        if len(matches) == len(straight.values):
-            return straight.win_score
-        else:
-            return straight.loose_score
-
-    def score_full_house(self):
-        full_house = FullHouseCategoryFactory().create()
-        if self.dice.number_of_unique_values() == len(full_house.categories):
-            partial_scores = [
-                self.score_repetition(c)
-                for c in full_house.categories]
-            if all(partial_scores):
-                return sum(partial_scores)
-        return full_house.loose_score
+    def _match(self, dice: Dice) -> List[int]:
+        if dice.number_of_unique_values() == len(self.repetitions):
+            return [
+                RepetitionCategory(repetition=c).score(dice=dice)
+                for c in self.repetitions]
+        return []
 
 
 class Yatzy:
 
     def __init__(self, d1:int=0, d2:int=0, d3:int=0, d4:int=0, d5:int=0):
         self.dice = Dice(values=[d1,d2,d3,d4,d5])
-        self.rule_book = RuleBook(self.dice)
 
     def chance(self) -> int:
-        return self.rule_book.score_chance()
+        return sum(self.dice.values)
 
     def yatzy(self) -> int:
-        return self.rule_book.score_yatzy()
+        if len(set(self.dice.values)) == 1:
+            return 50
+        return 0
 
     def ones(self) -> int:
-        return self.rule_book.score_matching(1)
+        return self._score_matching(1)
 
     def twos(self) -> int:
-        return self.rule_book.score_matching(2)
+        return self._score_matching(2)
 
     def threes(self) -> int:
-        return self.rule_book.score_matching(3)
+        return self._score_matching(3)
 
     def fours(self) -> int:
-        return self.rule_book.score_matching(4)
+        return self._score_matching(4)
 
     def fives(self) -> int:
-        return self.rule_book.score_matching(5)
+        return self._score_matching(5)
 
     def sixes(self) -> int:
-        return self.rule_book.score_matching(6)
+        return self._score_matching(6)
 
     def one_pair(self) -> int:
-        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=2, frequency=1))
+        repetition = Repetition(same_number_times=2, frequency=1)
+        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
 
     def two_pairs(self) -> int:
-        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=2, frequency=2))
+        repetition = Repetition(same_number_times=2, frequency=2)
+        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
 
     def three_of_a_kind(self) -> int:
-        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=3, frequency=1))
+        repetition = Repetition(same_number_times=3, frequency=1)
+        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
 
     def four_of_a_kind(self) -> int:
-        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=4, frequency=1))
+        repetition = Repetition(same_number_times=4, frequency=1)
+        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
 
     def smallStraight(self) -> int:
-        return self.rule_book.score_straight(straight_type=StraightType.SMALL)
+        return StraightCategory(straight_type=StraightType.SMALL).score(dice=self.dice)
 
     def largeStraight(self) -> int:
-        return self.rule_book.score_straight(straight_type=StraightType.LARGE)
+        return StraightCategory(straight_type=StraightType.LARGE).score(dice=self.dice)
 
     def fullHouse(self) -> int:
-        return self.rule_book.score_full_house()
+        return FullHouse().score(dice=self.dice)
+
+    def _score_matching(self, number:int) -> int:
+        return sum([v for v in self.dice.values if v == number])

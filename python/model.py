@@ -31,6 +31,14 @@ class Yatzy(Category):
         return self.loose_score
 
 
+class Match(Category):
+    def __init__(self, number: int):
+        self.number = number
+
+    def score(self, dice: Dice) -> int:
+        return sum([v for v in dice.values if v == self.number])
+
+
 class Repetition(Category):
     def __init__(self, same_number_times: int, frequency: int):
         self.same_number_times = same_number_times

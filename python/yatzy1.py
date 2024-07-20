@@ -1,4 +1,4 @@
-from model import Dice, Repetition, Straight, StraightType, FullHouse, Chance
+from model import Dice, Repetition, Straight, StraightType, FullHouse, Chance, Match
 from model import Yatzy as YatzyCategory
 
 class Yatzy:
@@ -13,22 +13,22 @@ class Yatzy:
         return YatzyCategory().score(self.dice)
 
     def ones(self) -> int:
-        return self._score_matching(1)
+        return Match(1).score(dice=self.dice)
 
     def twos(self) -> int:
-        return self._score_matching(2)
+        return Match(2).score(dice=self.dice)
 
     def threes(self) -> int:
-        return self._score_matching(3)
+        return Match(3).score(dice=self.dice)
 
     def fours(self) -> int:
-        return self._score_matching(4)
+        return Match(4).score(dice=self.dice)
 
     def fives(self) -> int:
-        return self._score_matching(5)
+        return Match(5).score(dice=self.dice)
 
     def sixes(self) -> int:
-        return self._score_matching(6)
+        return Match(6).score(dice=self.dice)
 
     def one_pair(self) -> int:
         return Repetition(same_number_times=2, frequency=1).score(dice=self.dice)
@@ -50,6 +50,3 @@ class Yatzy:
 
     def fullHouse(self) -> int:
         return FullHouse().score(dice=self.dice)
-
-    def _score_matching(self, number:int) -> int:
-        return sum([v for v in self.dice.values if v == number])

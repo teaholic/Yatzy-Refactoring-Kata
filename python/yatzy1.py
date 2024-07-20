@@ -1,5 +1,5 @@
-from model import Dice, Repetition, Straight, StraightType, FullHouse
-
+from model import Dice, Repetition, Straight, StraightType, FullHouse, Chance
+from model import Yatzy as YatzyCategory
 
 class Yatzy:
 
@@ -7,12 +7,10 @@ class Yatzy:
         self.dice = Dice(values=[d1,d2,d3,d4,d5])
 
     def chance(self) -> int:
-        return sum(self.dice.values)
+        return Chance().score(dice=self.dice)
 
     def yatzy(self) -> int:
-        if len(set(self.dice.values)) == 1:
-            return 50
-        return 0
+        return YatzyCategory().score(self.dice)
 
     def ones(self) -> int:
         return self._score_matching(1)

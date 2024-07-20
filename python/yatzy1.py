@@ -1,5 +1,6 @@
 from model import DiceValues, Yatzy, Repetition, Straight, StraightType, FullHouse, Chance, Match
 
+
 class YatzyGame:
 
     def __init__(self, d1:int=0, d2:int=0, d3:int=0, d4:int=0, d5:int=0):

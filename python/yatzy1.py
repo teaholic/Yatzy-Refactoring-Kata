@@ -1,4 +1,4 @@
-from model import Dice, Repetition, RepetitionCategory, StraightCategory, StraightType, FullHouse
+from model import Dice, RepetitionCategory, StraightCategory, StraightType, FullHouseCategory
 
 
 class Yatzy:
@@ -33,20 +33,16 @@ class Yatzy:
         return self._score_matching(6)
 
     def one_pair(self) -> int:
-        repetition = Repetition(same_number_times=2, frequency=1)
-        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
+        return RepetitionCategory(same_number_times=2, frequency=1).score(dice=self.dice)
 
     def two_pairs(self) -> int:
-        repetition = Repetition(same_number_times=2, frequency=2)
-        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
+        return RepetitionCategory(same_number_times=2, frequency=2).score(dice=self.dice)
 
     def three_of_a_kind(self) -> int:
-        repetition = Repetition(same_number_times=3, frequency=1)
-        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
+        return RepetitionCategory(same_number_times=3, frequency=1).score(dice=self.dice)
 
     def four_of_a_kind(self) -> int:
-        repetition = Repetition(same_number_times=4, frequency=1)
-        return RepetitionCategory(repetition=repetition).score(dice=self.dice)
+        return RepetitionCategory(same_number_times=4, frequency=1).score(dice=self.dice)
 
     def smallStraight(self) -> int:
         return StraightCategory(straight_type=StraightType.SMALL).score(dice=self.dice)
@@ -55,7 +51,7 @@ class Yatzy:
         return StraightCategory(straight_type=StraightType.LARGE).score(dice=self.dice)
 
     def fullHouse(self) -> int:
-        return FullHouse().score(dice=self.dice)
+        return FullHouseCategory().score(dice=self.dice)
 
     def _score_matching(self, number:int) -> int:
         return sum([v for v in self.dice.values if v == number])

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import List
@@ -8,12 +9,18 @@ class Dice:
     values: List[int]
 
 
+class Category(ABC):
+    @abstractmethod
+    def score(self, dice:Dice) -> int:
+        pass
+
+
 class StraightType(Enum):
     SMALL = 0
     LARGE = 1
 
 
-class StraightCategory:
+class Straight(Category):
     def __init__(self, straight_type: StraightType):
         self.values = [1, 2, 3, 4, 5] if straight_type is StraightType.SMALL else [2, 3, 4, 5, 6]
         self.win_score = 15 if straight_type is StraightType.SMALL else 20
@@ -32,7 +39,7 @@ class StraightCategory:
         return len(match) == len(self.values)
 
 
-class RepetitionCategory:
+class Repetition(Category):
     def __init__(self, same_number_times: int, frequency: int):
         self.same_number_times = same_number_times
         self.frequency = frequency
@@ -56,11 +63,11 @@ class RepetitionCategory:
         return sum([n * self.same_number_times for n in match])
 
 
-class FullHouseCategory:
+class FullHouse(Category):
     def __init__(self):
         self.repetitions = [
-                RepetitionCategory(same_number_times=2, frequency=1),
-                RepetitionCategory(same_number_times=3, frequency=1)
+                Repetition(same_number_times=2, frequency=1),
+                Repetition(same_number_times=3, frequency=1)
             ]
         self.loose_score = 0
 

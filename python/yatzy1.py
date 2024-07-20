@@ -1,4 +1,3 @@
-from abc import ABC
 from dataclasses import dataclass
 from enum import IntEnum
 from typing import List
@@ -7,9 +6,6 @@ from typing import List
 @dataclass(frozen=True)
 class Dice:
     values: List[int]
-
-    def number_of_unique_values(self) -> int:
-        return len(set(self.values))
 
 
 class StraightType(IntEnum):
@@ -80,7 +76,7 @@ class FullHouse:
         return self.loose_score
 
     def _match(self, dice: Dice) -> List[int]:
-        if dice.number_of_unique_values() == len(self.repetitions):
+        if len(set(dice.values)) == len(self.repetitions):
             return [
                 RepetitionCategory(repetition=c).score(dice=dice)
                 for c in self.repetitions]

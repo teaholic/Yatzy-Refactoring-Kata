@@ -1,23 +1,21 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from enum import Enum
 from typing import List
+from typing import NewType
 
 
-@dataclass(frozen=True)
-class Dice:
-    values: List[int]
+DiceValues = NewType('DiceValues', List[int])
 
 
 class Category(ABC):
     @abstractmethod
-    def score(self, dice:Dice) -> int:
+    def score(self, dice:DiceValues) -> int:
         pass
 
 
 class Chance(Category):
-    def score(self, dice: Dice) -> int:
-        return sum(dice.values)
+    def score(self, dice: DiceValues) -> int:
+        return sum(dice)
 
 
 class Yatzy(Category):
@@ -25,8 +23,8 @@ class Yatzy(Category):
         self.win_score = 50
         self.loose_score = 0
 
-    def score(self, dice: Dice) -> int:
-        if len(set(dice.values)) == 1:
+    def score(self, dice: DiceValues) -> int:
+        if len(set(dice)) == 1:
             return self.win_score
         return self.loose_score
 
@@ -35,8 +33,8 @@ class Match(Category):
     def __init__(self, number: int):
         self.number = number
 
-    def score(self, dice: Dice) -> int:
-        return sum([v for v in dice.values if v == self.number])
+    def score(self, dice: DiceValues) -> int:
+        return sum([v for v in dice if v == self.number])
 
 
 class Repetition(Category):
@@ -45,14 +43,14 @@ class Repetition(Category):
         self.frequency = frequency
         self.loose_score = 0
 
-    def score(self, dice:Dice) -> int:
+    def score(self, dice:DiceValues) -> int:
         match = self._match(dice)
         if self._is_a_win(match):
             return self._assign_win_score(match)
         return self.loose_score
 
-    def _match(self, dice:Dice) -> List[int]:
-        counts = [[n, dice.values.count(n)] for n in set(dice.values)]
+    def _match(self, dice:DiceValues) -> List[int]:
+        counts = [[n, dice.count(n)] for n in set(dice)]
         candidates = [n for n, times in counts if times >= self.same_number_times]
         return sorted(candidates, reverse=True)[:self.frequency]
 
@@ -74,14 +72,14 @@ class Straight(Category):
         self.win_score = 15 if straight_type is StraightType.SMALL else 20
         self.loose_score = 0
 
-    def score(self, dice:Dice) -> int:
+    def score(self, dice:DiceValues) -> int:
         match = self._match(dice)
         if self._is_a_win(match):
             return self.win_score
         return self.loose_score
 
-    def _match(self, dice:Dice) -> List[int]:
-        return list(set([i for i, j in zip(self.values, sorted(dice.values)) if i == j]))
+    def _match(self, dice:DiceValues) -> List[int]:
+        return list(set([i for i, j in zip(self.values, sorted(dice)) if i == j]))
 
     def _is_a_win(self, match:List[int]) -> bool:
         return len(match) == len(self.values)
@@ -95,13 +93,13 @@ class FullHouse(Category):
             ]
         self.loose_score = 0
 
-    def score(self, dice:Dice) -> int:
+    def score(self, dice:DiceValues) -> int:
         match = self._match(dice)
         if all(match):
             return sum(match)
         return self.loose_score
 
-    def _match(self, dice: Dice) -> List[int]:
-        if len(set(dice.values)) == len(self.repetitions):
+    def _match(self, dice: DiceValues) -> List[int]:
+        if len(set(dice)) == len(self.repetitions):
             return [c.score(dice=dice) for c in self.repetitions]
         return []

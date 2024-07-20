@@ -64,6 +64,14 @@ class RuleBook:
         self.dice = dice
         self.straight_factory = StraightFactory()
 
+    def score_chance(self) -> int:
+        return sum(self.dice.values)
+
+    def score_yatzy(self) -> int:
+        if len(set(self.dice.values)) == 1:
+            return 50
+        return 0
+
     def score_matching(self, number) -> int:
         return sum([v for v in self.dice.values if v == number])
 
@@ -101,48 +109,46 @@ class Yatzy:
         self.rule_book = RuleBook(self.dice)
 
     def chance(self) -> int:
-        return sum(self.dice.values)
+        return self.rule_book.score_chance()
 
     def yatzy(self) -> int:
-        if len(set(self.dice.values)) == 1:
-            return 50
-        return 0
+        return self.rule_book.score_yatzy()
 
-    def ones(self):
+    def ones(self) -> int:
         return self.rule_book.score_matching(1)
 
-    def twos(self):
+    def twos(self) -> int:
         return self.rule_book.score_matching(2)
 
-    def threes(self):
+    def threes(self) -> int:
         return self.rule_book.score_matching(3)
 
-    def fours(self):
+    def fours(self) -> int:
         return self.rule_book.score_matching(4)
 
-    def fives(self):
+    def fives(self) -> int:
         return self.rule_book.score_matching(5)
 
-    def sixes(self):
+    def sixes(self) -> int:
         return self.rule_book.score_matching(6)
 
-    def one_pair(self):
+    def one_pair(self) -> int:
         return self.rule_book.score_repetition(RepetitionCategory(same_number_times=2, frequency=1))
 
-    def two_pairs(self):
+    def two_pairs(self) -> int:
         return self.rule_book.score_repetition(RepetitionCategory(same_number_times=2, frequency=2))
 
-    def three_of_a_kind(self):
+    def three_of_a_kind(self) -> int:
         return self.rule_book.score_repetition(RepetitionCategory(same_number_times=3, frequency=1))
 
-    def four_of_a_kind(self):
+    def four_of_a_kind(self) -> int:
         return self.rule_book.score_repetition(RepetitionCategory(same_number_times=4, frequency=1))
 
-    def smallStraight(self):
+    def smallStraight(self) -> int:
         return self.rule_book.score_straight(straight_type=StraightType.SMALL)
 
-    def largeStraight(self):
+    def largeStraight(self) -> int:
         return self.rule_book.score_straight(straight_type=StraightType.LARGE)
 
-    def fullHouse(self):
+    def fullHouse(self) -> int:
         return self.rule_book.score_full_house()

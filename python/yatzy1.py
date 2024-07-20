@@ -1,92 +1,97 @@
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import List, Optional, Union, Any
+from typing import List
 
 
 @dataclass(frozen=True)
 class Dice:
     values: List[int]
 
+    def number_of_unique_values(self) -> int:
+        return len(set(self.values))
+
 
 class StraightType(IntEnum):
     SMALL = 0
     LARGE = 1
 
-@dataclass(frozen=True)
-class HowManyOfAKind:
-    same_number_times: int
-    frequency: int
-
 
 @dataclass(frozen=True)
 class StraightCategory:
-    values: Optional[List[int]] = None
-    win_score: Optional[int]=None
+    values: List[int]
+    win_score: int
     loose_score: int = 0
+
+
+class StraightFactory:
+    @staticmethod
+    def create(straight_type: StraightType) -> StraightCategory:
+        if straight_type is StraightType.SMALL:
+            return StraightCategory(values=[1, 2, 3, 4, 5], win_score=15)
+        return StraightCategory(values=[2, 3, 4, 5, 6], win_score=20)
 
 
 @dataclass(frozen=True)
 class RepetitionCategory:
-    how_many_of_a_kind: Optional[List[HowManyOfAKind]] = None
-    win_function: Optional[Union[int, Any]]=None
+    same_number_times: int
+    frequency: int
     loose_score: int = 0
+
+    def _win_function(self, repeated_number:int) -> int:
+        return repeated_number * self.same_number_times
+
+
+@dataclass(frozen=True)
+class FullHouseCategory:
+    categories: List[RepetitionCategory]
+    loose_score: int
+
+
+class FullHouseCategoryFactory:
+    @staticmethod
+    def create() -> FullHouseCategory:
+        return FullHouseCategory(
+            categories=[
+                RepetitionCategory(same_number_times=2, frequency=1),
+                RepetitionCategory(same_number_times=3, frequency=1)
+            ],
+            loose_score=0
+        )
 
 
 class RuleBook:
     def __init__(self, dice:Dice):
         self.dice = dice
-
-    @staticmethod
-    def small_straight() -> StraightCategory:
-        return StraightCategory(values=[1, 2, 3, 4, 5], win_score=15)
-
-    @staticmethod
-    def large_straight() -> StraightCategory:
-        return StraightCategory(values=[2, 3, 4, 5, 6], win_score=20)
-
-    @staticmethod
-    def two_of_a_kind() -> RepetitionCategory:
-        return RepetitionCategory(
-            how_many_of_a_kind=[HowManyOfAKind(same_number_times=2, frequency=1)],
-            win_function=lambda repeated_number: repeated_number*2
-        )
-
-    @staticmethod
-    def full_house() -> RepetitionCategory:
-        return RepetitionCategory(
-            how_many_of_a_kind=[
-                HowManyOfAKind(same_number_times=2, frequency=1),
-                HowManyOfAKind(same_number_times=3, frequency=1)
-            ],
-            win_function=lambda partial_scores: sum(partial_scores)
-        )
+        self.straight_factory = StraightFactory()
 
     def score_matching(self, number) -> int:
         return sum([v for v in self.dice.values if v == number])
 
-    def score_multiple_combinations(self, same_number_times:int, frequency:int):
+    def score_repetition(self, category:RepetitionCategory):
         counts = [[n, self.dice.values.count(n)] for n in set(self.dice.values)]
-        candidates = [n for n, times in counts if times >= same_number_times]
-        match = sorted(candidates, reverse=True)[:frequency]
-        if len(match) >= frequency:
-            return sum([n * same_number_times for n in match])
+        candidates = [n for n, times in counts if times >= category.same_number_times]
+        match = sorted(candidates, reverse=True)[:category.frequency]
+        if len(match) >= category.frequency:
+            return sum([n * category.same_number_times for n in match])
         return 0
 
     def score_straight(self, straight_type: StraightType) -> int:
-        straight = self.small_straight() if straight_type is StraightType.SMALL else self.large_straight()
+        straight = self.straight_factory.create(straight_type=straight_type)
         matches = set([i for i, j in zip(straight.values, sorted(self.dice.values)) if i == j])
-        print(matches)
         if len(matches) == len(straight.values):
             return straight.win_score
         else:
             return straight.loose_score
 
     def score_full_house(self):
-        if len(set(self.dice.values)) == len(self.full_house().how_many_of_a_kind):
-            partial_scores = [self.score_multiple_combinations(same_number_times=k.same_number_times, frequency=k.frequency) for k in self.full_house().how_many_of_a_kind]
+        full_house = FullHouseCategoryFactory().create()
+        if self.dice.number_of_unique_values() == len(full_house.categories):
+            partial_scores = [
+                self.score_repetition(c)
+                for c in full_house.categories]
             if all(partial_scores):
-                return self.full_house().win_function(partial_scores)
-        return self.full_house().loose_score
+                return sum(partial_scores)
+        return full_house.loose_score
 
 
 class Yatzy:
@@ -122,16 +127,16 @@ class Yatzy:
         return self.rule_book.score_matching(6)
 
     def one_pair(self):
-        return self.rule_book.score_multiple_combinations(same_number_times = 2, frequency = 1)
+        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=2, frequency=1))
 
     def two_pairs(self):
-        return self.rule_book.score_multiple_combinations(same_number_times=2, frequency=2)
+        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=2, frequency=2))
 
     def three_of_a_kind(self):
-        return self.rule_book.score_multiple_combinations(same_number_times=3, frequency=1)
+        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=3, frequency=1))
 
     def four_of_a_kind(self):
-        return self.rule_book.score_multiple_combinations(same_number_times = 4, frequency = 1)
+        return self.rule_book.score_repetition(RepetitionCategory(same_number_times=4, frequency=1))
 
     def smallStraight(self):
         return self.rule_book.score_straight(straight_type=StraightType.SMALL)
